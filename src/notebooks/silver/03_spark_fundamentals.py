@@ -143,3 +143,42 @@ display(orders.filter("customer_id = 6"))
 customer_doubled = customer_dedup.union(customer_dedup)
 display(customer_doubled)
 display(customer_doubled.filter("customer_id = 12"))
+print("Customers doubled: ", customer_doubled.count())
+print("join result:       ", orders_enriched.join(customer_doubled, "customer_id", "inner").count())
+
+# COMMAND ----------
+
+sales_by_country = (
+    orders_enriched
+        .join(customer_dedup, "customer_id", "inner")
+        .groupBy("country")
+        .agg(
+            F.count("*").alias("orders"),
+            F.round(F.sum("line_total"), 2).alias("revenue"),
+            F.countDistinct("customer_id").alias("customers"),
+            )
+        .orderBy(F.desc("revenue"))
+)
+display(sales_by_country)
+
+# COMMAND ----------
+
+orphans = orders_enriched.join(customer_dedup, "customer_id", "left_anti")
+display(orphans)
+display(orders_enriched.join(customer_dedup, "customer_id", "left"))
+
+# COMMAND ----------
+
+sales_by_country.explain(mode="formatted")
+
+# COMMAND ----------
+
+display(orders.groupBy(F.spark_partition_id().alias("partition_id")).count())
+
+# COMMAND ----------
+
+display(
+    orders.repartition(4)
+    .groupBy(F.spark_partition_id().alias("partition_id"))
+    .count()
+)

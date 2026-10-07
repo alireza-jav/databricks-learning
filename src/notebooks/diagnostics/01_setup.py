@@ -27,7 +27,7 @@
 
 base = "/Volumes/learning/bronze/raw"
 
-for folder in ["customer", "products", "orders"]:
+for folder in ["customers", "products", "orders"]:
     dbutils.fs.mkdirs(f"{base}/{folder}")
 
 display(dbutils.fs.ls(base))
