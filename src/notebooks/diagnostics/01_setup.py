@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
 # MAGIC %sql
 # MAGIC CREATE CATALOG IF NOT EXISTS learning COMMENT "Catalog learning";
 # MAGIC CREATE SCHEMA IF NOT EXISTS learning.bronze COMMENT "Raw data, as it arrived";
@@ -31,3 +35,10 @@ for folder in ["customers", "products", "orders"]:
     dbutils.fs.mkdirs(f"{base}/{folder}")
 
 display(dbutils.fs.ls(base))
+
+# COMMAND ----------
+
+base = "/Volumes/learning/bronze/raw"
+for t in ["customers", "products", "orders"]:
+    n = spark.read.option("header", "true").csv(f"{base}/{t}/").count()
+    print(t, n)
